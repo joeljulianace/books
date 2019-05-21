@@ -1,4 +1,6 @@
 import click
+import csv
+import os
 
 from flask import current_app, g
 from flask.cli import with_appcontext
@@ -22,6 +24,12 @@ def init_db():
 
     with current_app.open_resource('schema.sql') as f:
         db.execute(f.read().decode('utf8'))
+    db.commit()
+
+    f = open("flaskr/books.csv")
+    reader = csv.reader(f)
+    for isbn, title, author, year in reader:
+        db.execute('INSERT INTO books (isbn, title, author, year) VALUES (:isbn, :title, :author, :year)', {"isbn" : isbn, "title": title, "author" : author, "year": year})
     db.commit()
 
 @click.command('init-db')
