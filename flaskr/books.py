@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, session
 )
 from werkzeug.exceptions import abort
 
@@ -12,4 +12,8 @@ bp = Blueprint('books', __name__)
 def index():
    db = get_db()
    books = db.execute('SELECT isbn, title, author, year from books').fetchall()
-   return render_template('books/index.html', books=books)
+   user_id = session.get('user_id')
+   if user_id is None:
+       return redirect(url_for('auth.login'))
+   else:
+       return render_template('books/index.html', books=books)
