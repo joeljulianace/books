@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <!-- <h1>{% block title %}Book "{{ book['title'] }}" {% endblock %}</h1> -->
+{% endblock %}
+
+{% block content %}
+    <h1>{{ book['title'] }}</h1>
+    <h6>ISBN: {{ book['isbn'] }}</h6>
+    <h6>Author: {{ book['author'] }}</h6>
+    <h6>Publication Year: {{ book['year'] }}</h6>
+{% endblock %}
