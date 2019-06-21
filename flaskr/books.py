@@ -11,7 +11,8 @@ bp = Blueprint('books', __name__)
 @bp.route('/')
 def index():
    db = get_db()
-   books = db.execute('SELECT id, title from books').fetchall()
+   books = []
+#    books = db.execute('SELECT id, title from books').fetchall()
    user_id = session.get('user_id')
    if user_id is None:
        return redirect(url_for('auth.login'))
