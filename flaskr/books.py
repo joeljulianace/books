@@ -8,11 +8,23 @@ from flaskr.db import get_db
 
 bp = Blueprint('books', __name__)
 
-@bp.route('/')
+@bp.route('/', methods=['GET', 'POST'])
 def index():
    db = get_db()
    books = []
-#    books = db.execute('SELECT id, title from books').fetchall()
+   if request.method == 'POST':
+        searchtext = request.form['search']
+        error = None
+
+        if not searchtext:
+            error = 'Kindly enter ISBN, Book Title or Author Name'
+        else:
+            print(f'Search Text {searchtext}')
+            books = db.execute('SELECT id, title from books where title = :searchtext', {"searchtext" : searchtext}).fetchall()
+            return render_template('books/index.html', books=books)
+        
+        flash(error)
+    
    user_id = session.get('user_id')
    if user_id is None:
        return redirect(url_for('auth.login'))
