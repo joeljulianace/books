@@ -9,6 +9,7 @@ from flaskr.db import get_db
 bp = Blueprint('books', __name__)
 
 @bp.route('/', methods=['GET', 'POST'])
+@login_required
 def index():
    db = get_db()
    books = []
@@ -20,7 +21,11 @@ def index():
             error = 'Kindly enter ISBN, Book Title or Author Name'
         else:
             print(f'Search Text {searchtext}')
-            books = db.execute('SELECT id, title from books where title = :searchtext', {"searchtext" : searchtext}).fetchall()
+            searchtext = "%s" % '%' + searchtext + '%'
+            query = "SELECT id, title from books where title LIKE '%s'" % (searchtext)
+            print(f'Query: {query}')
+            # books = db.execute("SELECT id, title from books where title LIKE %:searchtext%", {"searchtext" : searchtext}).fetchall()
+            books = db.execute(query).fetchall()
             return render_template('books/index.html', books=books)
         
         flash(error)
