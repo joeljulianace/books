@@ -20,14 +20,14 @@ def index():
         if not searchtext:
             error = 'Kindly enter ISBN, Book Title or Author Name'
         else:
-            print(f'Search Text {searchtext}')
             searchtext = "%s" % '%' + searchtext + '%'
-            query = "SELECT id, title from books where title LIKE '%s'" % (searchtext)
-            print(f'Query: {query}')
-            # books = db.execute("SELECT id, title from books where title LIKE %:searchtext%", {"searchtext" : searchtext}).fetchall()
+            query = "SELECT id, title FROM books WHERE isbn LIKE '%s' or title LIKE '%s' or author LIKE '%s'" % (searchtext, searchtext, searchtext)
             books = db.execute(query).fetchall()
-            return render_template('books/index.html', books=books)
-        
+            if books:
+                return render_template('books/index.html', books=books)
+            else:
+                error = 'Sorry no matches found!'
+
         flash(error)
     
    user_id = session.get('user_id')
