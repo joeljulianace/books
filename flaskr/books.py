@@ -47,6 +47,8 @@ def get_book(id):
 @bp.route('/<int:id>/bookpage', methods=['GET', 'POST'])
 @login_required
 def bookpage(id):
-    book = get_book(id)        
+    book = get_book(id)
+    db = get_db()
+    reviews = db.execute('SELECT b.isbn, b.title, b.author, b.year, r.reviews, u.id, u.username FROM books b JOIN reviews r ON b.id = r.bookid JOIN users u ON u.id = r.userid WHERE b.id = :id', {"id" : id}).fetchall()
 
-    return render_template('books/bookpage.html', book=book)
+    return render_template('books/bookpage.html', book=book, reviews=reviews)
