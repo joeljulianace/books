@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS books;
 
@@ -13,4 +14,12 @@ CREATE TABLE books (
     title TEXT NOT NULL,
     author TEXT NOT NULL,
     year TEXT NOT NULL
+);
+
+CREATE TABLE reviews(
+    review_id SERIAL PRIMARY KEY,
+    rating VARCHAR(2) NOT NULL,
+    reviews TEXT NOT NULL,
+    userid INTEGER REFERENCES users(id),
+    bookid INTEGER REFERENCES books(id)
 );
