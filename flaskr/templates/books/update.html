@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Edit "{{ book['title'] }}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="POST">
+        <div class="form-group">
+            <label for="review">Review</label>
+            <textarea name="review" id="review" class="form-control" required>{{ request.form['reviews'] or review['reviews'] }}</textarea>
+        </div>
+        <input type="submit" value="Save" class="btn btn-primary">
+        <input type="submit" value="Cancel" class="btn btn-primary">
+    </form>
+{% endblock %}
