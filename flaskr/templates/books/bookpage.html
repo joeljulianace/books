@@ -15,7 +15,7 @@
         {% for review in reviews %}
             <tr>
                 {% if g.user['id'] == review['id'] %}
-                    <td>{{ review['reviews'] }} <a href="#">Edit</a></td>
+                    <td>{{ review['reviews'] }} <a href="{{ url_for('books.update', id=review['review_id']) }}">Edit</a></td>
                 {% else %}
                     <td>{{ review['reviews'] }}</td>
                 {% endif %}
