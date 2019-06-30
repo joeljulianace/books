@@ -49,6 +49,33 @@ def get_book(id):
 def bookpage(id):
     book = get_book(id)
     db = get_db()
-    reviews = db.execute('SELECT b.isbn, b.title, b.author, b.year, r.reviews, u.id, u.username FROM books b JOIN reviews r ON b.id = r.bookid JOIN users u ON u.id = r.userid WHERE b.id = :id', {"id" : id}).fetchall()
+    reviews = db.execute('SELECT b.isbn, b.title, b.author, b.year, r.reviews, u.id, r.review_id FROM books b JOIN reviews r ON b.id = r.bookid JOIN users u ON u.id = r.userid WHERE b.id = :id', {"id" : id}).fetchall()
 
     return render_template('books/bookpage.html', book=book, reviews=reviews)
+
+def get_review(id):
+    db = get_db()
+    review = db.execute('SELECT r.rating, r.reviews, r.bookid FROM reviews r JOIN users u ON r.userid = u.id WHERE r.review_id = :id', {"id" : id}).fetchone()
+
+    if review is None:
+        abort(404, "Review Id {} doesn't exist".format(id))    
+    return review
+
+@bp.route('/<int:id>/update', methods=['GET', 'POST'])    
+@login_required
+def update(id):
+    review = get_review(id)
+    book = get_book(id)
+
+    if request.method == 'POST':
+        review_body = request.form['review']
+        error = None
+
+        if not review_body:
+            flash(error)
+        else:
+            db = get_db()
+            db.execute('UPDATE reviews SET reviews = :review_body WHERE review_id = :id', {"review_body" : review_body, "id" : id})
+            db.commit()
+            return redirect(url_for('books.bookpage', id=review['bookid']))
+    return render_template('books/update.html', review=review, book=book)
