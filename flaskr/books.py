@@ -38,7 +38,7 @@ def index():
 
 def get_book(id):
     db = get_db()    
-    book = db.execute('SELECT isbn, title, author, year FROM books where id = :id', {"id" : id}).fetchone()
+    book = db.execute('SELECT id, isbn, title, author, year FROM books where id = :id', {"id" : id}).fetchone()
 
     if book is None:
         abort(404, "Book id {} doesn't exist".format(id))
@@ -68,14 +68,20 @@ def update(id):
     book = get_book(id)
 
     if request.method == 'POST':
-        review_body = request.form['review']
-        error = None
-
-        if not review_body:
-            flash(error)
-        else:
-            db = get_db()
-            db.execute('UPDATE reviews SET reviews = :review_body WHERE review_id = :id', {"review_body" : review_body, "id" : id})
-            db.commit()
+        if "cancel" in request.form:
             return redirect(url_for('books.bookpage', id=review['bookid']))
+        elif "save" in request.form:
+            review_body = request.form['review']
+            error = None
+
+            if not review_body:
+                error = 'Review comment is required.'
+
+            if error is not None:
+                flash(error)
+            else:
+                db = get_db()
+                db.execute('UPDATE reviews SET reviews = :review_body WHERE review_id = :id', {"review_body" : review_body, "id" : id})
+                db.commit()
+                return redirect(url_for('books.bookpage', id=review['bookid']))
     return render_template('books/update.html', review=review, book=book)
