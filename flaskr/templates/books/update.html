@@ -1,16 +1,21 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %}Edit "{{ book['title'] }}"{% endblock %}</h1>
+    <h1>{% block title %}Review For {{ book['title'] }}"{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
+    <!-- <form action="{{ url_for('books.bookpage', id=book['id']) }}" method="POST">
+        <div class="form-group">
+            <input type="submit" value="Cancel" class="btn btn-primary">
+        </div>
+    </form> -->
     <form method="POST">
         <div class="form-group">
             <label for="review">Review</label>
-            <textarea name="review" id="review" class="form-control" required>{{ request.form['reviews'] or review['reviews'] }}</textarea>
+            <textarea name="review" id="review" class="form-control">{{ request.form['reviews'] or review['reviews'] }}</textarea>
         </div>
-        <input type="submit" value="Save" class="btn btn-primary">
-        <input type="submit" value="Cancel" class="btn btn-primary">
+        <input type="submit" value="Save" class="btn btn-primary" name="save">
+        <input type="submit" value="Cancel" class="btn btn-primary" name="cancel">
     </form>
 {% endblock %}
