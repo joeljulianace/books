@@ -9,30 +9,41 @@
     <h6>ISBN: {{ book['isbn'] }}</h6>
     <h6>Author: {{ book['author'] }}</h6>
     <h6>Publication Year: {{ book['year'] }}</h6>
+    <br>
+    <h4>My Reviews</h4>
+    {% if reviews | length > 0 %}
+        <table class="table table-hover">
+            <tbody>
+            {% for review in reviews %}
+                <tr>
+                    {% if g.user['id'] == review['id'] %}
+                        <td>{{ review['reviews'] }} <br><a href="{{ url_for('books.update', id=review['review_id']) }}">Edit</a></td>
+                    {% else %}
+                        <h6>To comment on this book Click <a href="#">Here</a></h6>
+                        <br>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <h6>To comment on this book Click <a href="#">Here</a></h6>
+        <br>
+    {% endif %}
     <h4>Reviews</h4>
-    <table class="table table-hover">
-        <tbody>
-        {% for review in reviews %}
-            <tr>
-                {% if g.user['id'] == review['id'] %}
-                    <td>{{ review['reviews'] }} <br><a href="{{ url_for('books.update', id=review['review_id']) }}">Edit</a></td>
-                {% else %}
-                    <td>{{ review['reviews'] }}</td>
-                {% endif %}
-            </tr>
-            <!-- <article class="post">
-                <header>
-                    <div>
-                        <h1>{{ book['title'] }}</h1>
-                        <div class="about">by {{ book['author'] }} published in {{ book['year'] }}</div>
-                        <div class="about">ISBN: {{ book['isbn'] }}</div>
-                    </div>
-                </header>
-            </article> -->
-            <!-- {% if not loop.last %} -->
-                <!-- <hr>
-            {% endif %} -->
-        {% endfor %}
-        </tbody>
-    </table>    
+    {% if reviews | length > 0 %}
+        <table class="table table-hover">
+            <tbody>
+            {% for review in reviews %}
+                <tr>
+                    {% if g.user['id'] != review['id'] %}
+                        <td>{{ review['reviews'] }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <h6>No reviews for this book!</h6>
+    {% endif %}
 {% endblock %}
