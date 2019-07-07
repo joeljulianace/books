@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Create Review{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="POST">
+        <div class="form-group">
+            <label for="review">Rating</label>
+            <select name="rating" id="rating" class="form-control">
+                <option value="1">1</option>
+                <option value="1">2</option>
+                <option value="1">3</option>
+                <option value="1">4</option>
+                <option value="1">5</option>
+            </select>
+            <br>
+            <label for="review">Review</label>
+            <textarea name="review" id="review" class="form-control">{{ request.form['reviews'] }}</textarea>
+        </div>
+        <input type="submit" value="Save" class="btn btn-primary" name="save">
+        <input type="submit" value="Cancel" class="btn btn-primary" name="cancel">
+    </form>
+{% endblock %}
