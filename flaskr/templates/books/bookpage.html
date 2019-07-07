@@ -11,26 +11,23 @@
     <h6>Publication Year: {{ book['year'] }}</h6>
     <br>
     <h4>My Reviews</h4>
-    {% if reviews | length > 0 %}
+    {% if userreview == true %}
         <table class="table table-hover">
             <tbody>
             {% for review in reviews %}
-                <tr>
+                <tr>                        
                     {% if g.user['id'] == review['id'] %}
                         <td>{{ review['reviews'] }} <br><a href="{{ url_for('books.update', id=review['review_id']) }}">Edit</a></td>
-                    {% else %}
-                        <h6>To comment on this book Click <a href="#">Here</a></h6>
-                        <br>
                     {% endif %}
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <h6>To comment on this book Click <a href="#">Here</a></h6>
+        <h6>To comment on this book. Click <a href="{{ url_for('books.create', id=book['id']) }}">Here</a></h6>
         <br>
     {% endif %}
-    <h4>Reviews</h4>
+    <h4>Other Reviews</h4>
     {% if reviews | length > 0 %}
         <table class="table table-hover">
             <tbody>
