@@ -58,7 +58,13 @@ def get_user_review(id):
     print(f'Review Count: {review[0]}')
     if review[0] == 1:
         return True
-    return False    
+    return False
+
+def get_review_rating(id):
+    db = get_db()
+    rating = db.execute('SELECT rating FROM reviews WHERE review_id = :reviewid', {"reviewid" : id}).fetchone()    
+    print(f'Rating: {rating[0]}')
+    return rating[0]
 
 @bp.route('/<int:id>/bookpage', methods=['GET', 'POST'])
 @login_required
@@ -75,13 +81,16 @@ def bookpage(id):
 @login_required
 def update(id):
     review = get_review(id)
-    book = get_book(id)
+    bookid = review['bookid']
+    book = get_book(bookid)
+    rating = get_review_rating(id)
 
     if request.method == 'POST':
         if "cancel" in request.form:
             return redirect(url_for('books.bookpage', id=review['bookid']))
         elif "save" in request.form:
             review_body = request.form['review']
+            rating = request.form['rating']
             error = None
 
             if not review_body:
@@ -91,10 +100,10 @@ def update(id):
                 flash(error)
             else:
                 db = get_db()
-                db.execute('UPDATE reviews SET reviews = :review_body WHERE review_id = :id', {"review_body" : review_body, "id" : id})
+                db.execute('UPDATE reviews SET reviews = :review_body, rating = :rating WHERE review_id = :id', {"review_body" : review_body, "id" : id, "rating" : rating})
                 db.commit()
                 return redirect(url_for('books.bookpage', id=review['bookid']))
-    return render_template('books/update.html', review=review, book=book)
+    return render_template('books/update.html', review=review, book=book, rating=rating)
 
 @bp.route('/<int:id>/create', methods=['GET', 'POST'])    
 @login_required
