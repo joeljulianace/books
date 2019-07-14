@@ -1,5 +1,6 @@
+import requests
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, session
+    Blueprint, flash, g, redirect, render_template, request, url_for, session, jsonify
 )
 from werkzeug.exceptions import abort
 
@@ -7,6 +8,8 @@ from flaskr.auth import login_required
 from flaskr.db import get_db
 
 bp = Blueprint('books', __name__)
+key = '8zEy5qaZLzd0NwWTp0trJw'
+secret = 'ENnd05HFryY6P6jKEra10yrdi8KJagAmGORvZeaQ4'
 
 @bp.route('/', methods=['GET', 'POST'])
 @login_required
@@ -66,16 +69,40 @@ def get_review_rating(id):
     print(f'Rating: {rating[0]}')
     return rating[0]
 
+def get_book_average_rating(id):
+    db = get_db()
+    average = db.execute('SELECT ROUND(AVG(CAST(rating as INTEGER)),2) FROM reviews WHERE bookid = :bookid', {"bookid" : id}).fetchone()    
+    if average is not None:
+        return average[0]
+
+def get_goodreads_rating_count(key, isbnnumber):
+    response = requests.get("https://www.goodreads.com/book/review_counts.json", params = {"key" : key, "isbns" : isbnnumber})
+    return response
+
+def get_book_by_isbn(isbn):
+    db = get_db()
+    book = db.execute('SELECT id, isbn, title, author, year FROM books where isbn = :isbn', {"isbn" : isbn}).fetchone()
+    return book
+
 @bp.route('/<int:id>/bookpage', methods=['GET', 'POST'])
 @login_required
 def bookpage(id):
     book = get_book(id)
     userreview = get_user_review(id)
-    print(f'User review: {userreview}')
+    average = get_book_average_rating(id)
     db = get_db()
+    print('ISBN: {}'.format(book['isbn']))
+    response = get_goodreads_rating_count(key, book['isbn'])
+    if response.status_code != 200:
+        goodreads_average = 'N/A'
+        goodreads_work_ratings_count = 'N/A'
+    else:
+        data = response.json()
+        goodreads_average = data['books'][0]['average_rating']
+        goodreads_work_ratings_count = data['books'][0]['work_ratings_count']
     reviews = db.execute('SELECT b.isbn, b.title, b.author, b.year, r.reviews, u.id, r.review_id FROM books b JOIN reviews r ON b.id = r.bookid JOIN users u ON u.id = r.userid WHERE b.id = :id', {"id" : id}).fetchall()
 
-    return render_template('books/bookpage.html', book=book, reviews=reviews, userreview=userreview)
+    return render_template('books/bookpage.html', book=book, reviews=reviews, userreview=userreview, average=average, goodreads_average=goodreads_average, goodreads_work_ratings_count=goodreads_work_ratings_count)
 
 @bp.route('/<int:id>/update', methods=['GET', 'POST'])    
 @login_required
@@ -129,5 +156,33 @@ def create(id):
             db.commit()
             return redirect(url_for('books.bookpage', id=book['id']))
     return render_template('books/create.html')
-            
-        
+
+@bp.route('/api/<string:isbn>')
+def get_book_api(isbn):
+    book = get_book_by_isbn(isbn)
+    if book is None:
+        return jsonify({"error":"ISBN Number Not Found"}), 404
+    
+    title = book['title']
+    author = book['author']
+    year = book['year']
+    isbn = book['isbn']
+
+    response = get_goodreads_rating_count(key, isbn)
+
+    if response.status_code != 200:
+        goodreads_average = 'N/A'
+        goodreads_work_ratings_count = 'N/A'
+    else:
+        data = response.json()
+        goodreads_average = data['books'][0]['average_rating']
+        goodreads_work_ratings_count = data['books'][0]['work_ratings_count']
+    
+    return jsonify({
+        "title" : title,
+        "author" : author,
+        "year" : year,
+        "isbn" : isbn,
+        "review_count" : goodreads_work_ratings_count,
+        "average_score" : goodreads_average
+    })
