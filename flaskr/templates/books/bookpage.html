@@ -9,6 +9,9 @@
     <h6>ISBN: {{ book['isbn'] }}</h6>
     <h6>Author: {{ book['author'] }}</h6>
     <h6>Publication Year: {{ book['year'] }}</h6>
+    <h6>Average Rating: {{ average }}</h6>
+    <h6>GoodReads Rating: {{ goodreads_average }}</h6>
+    <h6>GoodReads Work Ratings Count: {{ goodreads_work_ratings_count }}</h6>
     <br>
     <h4>My Reviews</h4>
     {% if userreview == true %}
